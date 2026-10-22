@@ -32,7 +32,7 @@ dmrfit(
 
 \item{with_prior}{logical, whether to include the prior in the optimization: a Beta-Prime prior on the thresholds and a Cauchy prior on the pairwise interactions. Default is FALSE.}
 
-\item{savage_dickey}{logical, whether to compute the Savage-Dickey density ratio Bayes factor for each pairwise interaction via Bayesian Sampling Importance Resampling (BSIR) from the coordinate-rescaled pseudo-posterior: the pseudo-posterior rescaled around its mode to the Godambe-Huber-White (GHW) covariance, which corrects the underestimated posterior variability of the pseudo-likelihood. The proposal is a multivariate t with the GHW covariance. When zero lies beyond all resampled draws of an interaction, its density at zero cannot be estimated from the draws: the Bayes factor is then reported at the floor \code{1/(10 * M)} and flagged in \code{savage_dickey$zero_beyond_draws}. Only available when \code{with_prior = TRUE}. Default is FALSE.}
+\item{savage_dickey}{logical, whether to compute the Savage-Dickey density ratio Bayes factor for each pairwise interaction via Bayesian Sampling Importance Resampling (BSIR) from the coordinate-rescaled pseudo-posterior: the pseudo-posterior rescaled around its mode to the Godambe-Huber-White (GHW) covariance, which corrects the underestimated posterior variability of the pseudo-likelihood. The proposal is a multivariate t with the GHW covariance. The posterior density of an interaction at zero is a Gaussian kernel estimate from the resampled draws, or, when few draws lie near zero, the density of a normal distribution with the mean and standard deviation of the draws, as recorded in \code{savage_dickey$density_at_zero}. Only available when \code{with_prior = TRUE}. Default is FALSE.}
 
 \item{M}{number of draws resampled in the BSIR step (default is 1000). Only used when \code{savage_dickey = TRUE}.}
 
@@ -84,9 +84,10 @@ for each value of \eqn{\theta_k}, the other parameters are set to the values tha
 For a full likelihood the statistic would be \eqn{\chi^2_1}-distributed (\eqn{C_k = 1}); for the
 pseudo-likelihood it is \eqn{\lambda_k \chi^2_1}-distributed, with \eqn{\lambda_k = \Sigma_{kk} / (H^{-1})_{kk}},
 because the curvature \eqn{H} of the pseudo-likelihood overstates the information in the data
-(\eqn{\Sigma} is the GHW covariance). The scaling \eqn{C_k = 1 / \lambda_k} calibrates the statistic (Pace,
-Salvan and Sartori, 2011; Varin, Reid and Firth, 2011). Unlike the Wald intervals, the likelihood-ratio intervals
-can be asymmetric around the estimate. The bounds are found by \code{uniroot} on each side of the estimate. The
+(\eqn{\Sigma} is the GHW covariance). The scaling \eqn{C_k = 1 / \lambda_k} calibrates the statistic (Geys,
+Molenberghs and Ryan, 1999; Pace, Salvan and Sartori, 2011; Varin, Reid and Firth, 2011). Unlike the Wald intervals,
+the likelihood-ratio intervals can be asymmetric around the estimate. The bounds are found by \code{uniroot} on each
+side of the estimate. The
 asymmetry matters when the sample size is small relative to the number of parameters (Arena and Marsman, 2026), so
 with fewer than 10 observations per free parameter \code{dmrfit()} warns that the Wald intervals may be inaccurate.
 }
@@ -111,6 +112,10 @@ summary(fit_constrained)
 \references{
 Arena, G. and Marsman, M. (2026). Bayesian inference for discrete Markov random fields through
 coordinate rescaling. arXiv preprint. \doi{10.48550/arXiv.2601.17205}
+
+Geys, H., Molenberghs, G., and Ryan, L. M. (1999). Pseudolikelihood modeling of multivariate outcomes in
+developmental toxicology. \emph{Journal of the American Statistical Association}, 94(447), 734-745.
+\doi{10.1080/01621459.1999.10474176}
 
 Pace, L., Salvan, A., and Sartori, N. (2011). Adjusting composite likelihood ratio statistics. \emph{Statistica
 Sinica}, 21(1), 129-148.
